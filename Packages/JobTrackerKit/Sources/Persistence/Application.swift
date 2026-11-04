@@ -1,15 +1,46 @@
+import Domain
 import Foundation
 import SwiftData
 
 /// A saved job application.
 ///
-/// Fields beyond the creation date arrive with the manual-entry ticket. The
-/// model exists now so the app has a real SwiftData schema to open.
+/// Every stored property has a default so an existing store opens with a lightweight migration.
 @Model
 public final class Application {
-    public var createdAt: Date
+    public var company: String = ""
+    public var role: String = ""
+    /// The raw value of a `Stage`. Read and write it through `stage`.
+    public var stageRawValue: String = Stage.applied.rawValue
+    public var appliedOn: Date = Date.now
+    public var link: String?
+    public var notes: String = ""
+    public var nextStepTitle: String?
+    public var nextStepDate: Date?
+    public var createdAt: Date = Date.now
 
-    public init(createdAt: Date = .now) {
+    public var stage: Stage {
+        get { Stage(rawValue: stageRawValue) ?? .applied }
+        set { stageRawValue = newValue.rawValue }
+    }
+
+    public init(
+        company: String = "",
+        role: String = "",
+        stage: Stage = .applied,
+        appliedOn: Date = .now,
+        link: String? = nil,
+        notes: String = "",
+        nextStep: NextStep? = nil,
+        createdAt: Date = .now
+    ) {
+        self.company = company
+        self.role = role
+        self.stageRawValue = stage.rawValue
+        self.appliedOn = appliedOn
+        self.link = link
+        self.notes = notes
+        self.nextStepTitle = nextStep?.title
+        self.nextStepDate = nextStep?.date
         self.createdAt = createdAt
     }
 }

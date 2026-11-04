@@ -27,6 +27,8 @@ targets:
         product: Domain
       - package: JobTrackerKit
         product: Persistence
+      - package: JobTrackerKit
+        product: ViewModels
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.louistran.jobtracker.JobTracker
@@ -39,6 +41,18 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
+  JobTrackerUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: App/JobTrackerUITests
+    dependencies:
+      - target: JobTracker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.louistran.jobtracker.JobTrackerUITests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
 schemes:
   JobTracker:
     build:
@@ -49,4 +63,5 @@ schemes:
     test:
       config: Debug
       gatherCoverageData: false
-      targets: []
+      targets:
+        - JobTrackerUITests

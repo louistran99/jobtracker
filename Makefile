@@ -6,9 +6,10 @@ TOOLS := $(ROOT)/Tools
 XCODEGEN_VERSION := 2.46.0
 SWIFTLINT_VERSION := 0.65.1
 
-SIMULATOR_DESTINATION := generic/platform=iOS Simulator
+# UI tests launch the app, so they need a named simulator. Override with `make ui-test UI_TEST_DESTINATION=...`.
+UI_TEST_DESTINATION ?= platform=iOS Simulator,name=iPhone 17
 
-.PHONY: bootstrap generate lint format test
+.PHONY: bootstrap generate lint format test unit-test ui-test
 
 bootstrap:
 	mkdir -p "$(TOOLS)/downloads"
@@ -39,12 +40,16 @@ format:
 	xcrun swift-format format --in-place --recursive --configuration "$(ROOT)/.swift-format" \
 		"$(ROOT)/App" "$(ROOT)/Packages/JobTrackerKit/Sources" "$(ROOT)/Packages/JobTrackerKit/Tests"
 
-test: generate
+test: unit-test
+
+unit-test:
 	swift test --package-path "$(ROOT)/Packages/JobTrackerKit" -Xswiftc -warnings-as-errors
+
+ui-test: generate
 	xcodebuild \
 		-project "$(ROOT)/JobTracker.xcodeproj" \
 		-scheme JobTracker \
-		-destination "$(SIMULATOR_DESTINATION)" \
+		-destination "$(UI_TEST_DESTINATION)" \
 		-derivedDataPath "$(ROOT)/DerivedData" \
 		CODE_SIGNING_ALLOWED=NO \
-		build
+		test
