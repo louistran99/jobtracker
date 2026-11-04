@@ -1,0 +1,35 @@
+included:
+  - App
+  - Packages/JobTrackerKit/Sources
+  - Packages/JobTrackerKit/Tests
+excluded:
+  - .build
+  - DerivedData
+  - Tools
+  - Packages/JobTrackerKit/.build
+
+# swift-format requires trailing commas in multiline literals.
+disabled_rules:
+  - trailing_comma
+
+line_length:
+  warning: 120
+  error: 160
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - id
+
+force_cast: error
+force_try: error
+force_unwrapping: error
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - force_unwrapping
+
+reporter: relative-path
