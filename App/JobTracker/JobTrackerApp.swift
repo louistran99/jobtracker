@@ -8,7 +8,9 @@ struct JobTrackerApp: App {
 
     init() {
         do {
-            modelContainer = try AppDependencies().modelContainer
+            // UI tests pass `-ui-testing` so every launch starts with an empty in-memory store.
+            let isUITesting = ProcessInfo.processInfo.arguments.contains("-ui-testing")
+            modelContainer = try AppDependencies(inMemory: isUITesting).modelContainer
         } catch {
             modelContainer = nil
             Logger.app.error("Unable to open the application store: \(error, privacy: .public)")
