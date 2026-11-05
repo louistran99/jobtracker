@@ -1,27 +1,24 @@
-import SwiftData
 import SwiftUI
 import os
 
 @main
 struct JobTrackerApp: App {
-    private let modelContainer: ModelContainer?
+    private let dependencies: AppDependencies?
 
     init() {
         do {
-            // UI tests pass `-ui-testing` so every launch starts with an empty in-memory store.
-            let isUITesting = ProcessInfo.processInfo.arguments.contains("-ui-testing")
-            modelContainer = try AppDependencies(inMemory: isUITesting).modelContainer
+            dependencies = try AppDependencies()
         } catch {
-            modelContainer = nil
+            dependencies = nil
             Logger.app.error("Unable to open the application store: \(error, privacy: .public)")
         }
     }
 
     var body: some Scene {
         WindowGroup {
-            if let modelContainer {
-                ApplicationsView()
-                    .modelContainer(modelContainer)
+            if let dependencies {
+                ApplicationsView(fetchPosting: dependencies.fetchPosting)
+                    .modelContainer(dependencies.modelContainer)
             } else {
                 ContentUnavailableView(
                     "Can't Open Applications",

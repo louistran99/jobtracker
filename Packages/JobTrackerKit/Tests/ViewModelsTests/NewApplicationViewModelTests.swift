@@ -8,11 +8,14 @@ import Testing
 struct NewApplicationViewModelTests {
     private struct SaveError: Error {}
 
+    private struct FetchError: Error {}
+
     private func makeViewModel(
         save: @escaping (ApplicationDraft) throws -> Void = { _ in }
     ) -> NewApplicationViewModel {
         NewApplicationViewModel(
             draft: ApplicationDraft(today: Date(timeIntervalSince1970: 1_700_000_000)),
+            fetchPosting: { _ in throw FetchError() },
             save: save
         )
     }

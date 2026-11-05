@@ -12,4 +12,4 @@ Requires Xcode 26. Run these commands from the project directory.
 
 Open `JobTracker.xcodeproj` in Xcode and run the JobTracker scheme.
 
-`make test` runs the Swift package unit tests. `make ui-test` builds the app and runs the UI tests on the iPhone 17 simulator. Pass `UI_TEST_DESTINATION="platform=iOS Simulator,name=<device>"` to use another device. `make lint` runs SwiftLint and swift-format.
+`make test` runs the Swift package unit tests. `make ui-test` builds the app and runs the UI tests on the iPhone 17 simulator. UI tests launch the app with `-ui-testing`, which uses an empty in-memory store and, in Debug builds, a canned job-link result chosen by the `POSTING_STUB` environment variable (`found`, `fetching`, or `couldNotRead`), so they never touch the network. Pass `UI_TEST_DESTINATION="platform=iOS Simulator,name=<device>"` to use another device. `make lint` runs SwiftLint and swift-format.

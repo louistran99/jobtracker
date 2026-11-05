@@ -5,6 +5,8 @@ import SwiftUI
 import ViewModels
 
 struct ApplicationsView: View {
+    let fetchPosting: NewApplicationViewModel.FetchPosting
+
     @Query(sort: \Application.createdAt, order: .reverse) private var applications: [Application]
     @Environment(\.modelContext) private var modelContext
     @State private var newApplication: NewApplicationViewModel?
@@ -16,7 +18,7 @@ struct ApplicationsView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            newApplication = NewApplicationViewModel {
+                            newApplication = NewApplicationViewModel(fetchPosting: fetchPosting) {
                                 try ApplicationRepository(context: modelContext).add($0)
                             }
                         } label: {
@@ -71,6 +73,6 @@ private struct ApplicationRow: View {
 }
 
 #Preview {
-    ApplicationsView()
+    ApplicationsView(fetchPosting: PostingStub.found.fetchPosting)
         .modelContainer(for: Application.self, inMemory: true)
 }

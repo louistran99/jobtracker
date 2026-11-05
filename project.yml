@@ -29,6 +29,8 @@ targets:
         product: Persistence
       - package: JobTrackerKit
         product: ViewModels
+      - package: JobTrackerKit
+        product: PostingService
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.louistran.jobtracker.JobTracker
