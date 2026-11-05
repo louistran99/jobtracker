@@ -12,11 +12,13 @@ let package = Package(
         .library(name: "Domain", targets: ["Domain"]),
         .library(name: "Persistence", targets: ["Persistence"]),
         .library(name: "ViewModels", targets: ["ViewModels"]),
+        .library(name: "PostingService", targets: ["PostingService"]),
     ],
     targets: [
         .target(name: "Domain"),
         .target(name: "Persistence", dependencies: ["Domain"]),
         .target(name: "ViewModels", dependencies: ["Domain"]),
+        .target(name: "PostingService", dependencies: ["Domain"]),
         .testTarget(
             name: "DomainTests",
             dependencies: ["Domain"]
@@ -28,6 +30,11 @@ let package = Package(
         .testTarget(
             name: "ViewModelsTests",
             dependencies: ["ViewModels", "Domain"]
+        ),
+        .testTarget(
+            name: "PostingServiceTests",
+            dependencies: ["PostingService", "Domain"],
+            resources: [.copy("Fixtures")]
         ),
     ]
 )

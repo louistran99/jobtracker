@@ -66,10 +66,4 @@ final class AddApplicationUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["No Applications"].waitForExistence(timeout: 5))
     }
-
-    private func type(_ text: String, into field: XCUIElement) {
-        XCTAssertTrue(field.waitForExistence(timeout: 5))
-        field.tap()
-        field.typeText(text)
-    }
 }
