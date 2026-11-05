@@ -29,6 +29,7 @@ public struct ApplicationRepository {
             stage: draft.stage,
             appliedOn: draft.appliedOn,
             link: draft.trimmedLink,
+            normalizedLink: draft.normalizedLink,
             notes: draft.trimmedNotes,
             nextStep: draft.nextStep,
             createdAt: createdAt
@@ -41,5 +42,39 @@ public struct ApplicationRepository {
             throw error
         }
         return application
+    }
+
+    /// When the posting with this key was last added, or `nil` if it never was.
+    ///
+    /// - Parameter normalizedLink: A key from `PostingLink.normalized(_:)`, such as `ApplicationDraft.normalizedLink`.
+    public func dateAdded(forNormalizedLink normalizedLink: String) throws -> Date? {
+        var descriptor = FetchDescriptor<Application>(
+            predicate: #Predicate { $0.normalizedLink == normalizedLink },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first?.createdAt
+    }
+
+    /// Sets `normalizedLink` on applications saved before it existed, so `dateAdded(forNormalizedLink:)` finds them.
+    ///
+    /// Safe to call on every launch: once each link has its key, it fetches nothing and saves nothing.
+    public func backfillNormalizedLinks() throws {
+        let descriptor = FetchDescriptor<Application>(
+            predicate: #Predicate { $0.link != nil && $0.normalizedLink == nil }
+        )
+        var changed = false
+        for application in try context.fetch(descriptor) {
+            guard let link = application.link, let url = PostingLink.url(from: link) else { continue }
+            application.normalizedLink = PostingLink.normalized(url)
+            changed = true
+        }
+        guard changed else { return }
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

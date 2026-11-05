@@ -73,6 +73,38 @@ final class LinkFetchUITests: XCTestCase {
         XCTAssertTrue(row.label.contains("Grow Therapy"), "Row label was \(row.label)")
     }
 
+    func testAlreadyAddedLinkShowsWhenItWasAdded() {
+        // Every fetch in this launch hangs, so reaching "Already added" proves the second link was never fetched.
+        app.launchEnvironment["POSTING_STUB"] = "fetching"
+        app.launch()
+        let dayBefore = Date.now.formatted(.dateTime.month(.abbreviated).day())
+
+        app.buttons["newApplicationButton"].tap()
+        type(Self.ashbyLink, into: app.textFields["linkField"])
+        type("Grow Therapy", into: app.textFields["companyField"])
+        type("Engineering Manager", into: app.textFields["roleField"])
+        app.buttons["addButton"].tap()
+        XCTAssertTrue(app.buttons["newApplicationButton"].waitForExistence(timeout: 5))
+
+        app.buttons["newApplicationButton"].tap()
+        type("\(Self.ashbyLink)?departmentId=8f5e4c2a&utm_source=linkedin", into: app.textFields["linkField"])
+
+        wait(for: linkStatus, "label", toEqual: "Already added")
+        let note = app.staticTexts["duplicateNote"]
+        XCTAssertTrue(note.waitForExistence(timeout: 5))
+        let dayAfter = Date.now.formatted(.dateTime.month(.abbreviated).day())
+        // The test may run across midnight, so either day is right.
+        XCTAssertTrue(
+            [dayBefore, dayAfter].map { "You added this on \($0)" }.contains(note.label),
+            "Note was \(note.label)"
+        )
+        XCTAssertFalse(app.staticTexts["linkFooter"].exists, "The already-added state has no link footer")
+
+        type("Grow Therapy", into: app.textFields["companyField"])
+        type("Engineering Manager", into: app.textFields["roleField"])
+        XCTAssertFalse(app.buttons["addButton"].isEnabled, "A link that was already added can't be added again")
+    }
+
     private var linkStatus: XCUIElement {
         app.descendants(matching: .any).matching(identifier: "linkStatus").firstMatch
     }

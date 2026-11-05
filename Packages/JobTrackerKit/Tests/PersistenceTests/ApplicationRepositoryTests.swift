@@ -44,6 +44,7 @@ struct ApplicationRepositoryTests {
         #expect(application.stage == .onsite)
         #expect(application.appliedOn == Self.today)
         #expect(application.link == "https://stripe.com/jobs/6519024")
+        #expect(application.normalizedLink == "https://stripe.com/jobs/6519024")
         #expect(application.notes == "Referral from Sam")
         #expect(application.nextStepTitle == "Onsite loop")
         #expect(application.nextStepDate == Self.today.addingTimeInterval(86_400))
@@ -56,6 +57,7 @@ struct ApplicationRepositoryTests {
         #expect(application.stage == .applied)
         #expect(application.appliedOn == Self.today)
         #expect(application.link == nil)
+        #expect(application.normalizedLink == nil)
         #expect(application.notes.isEmpty)
         #expect(application.nextStepTitle == nil)
         #expect(application.nextStepDate == nil)
@@ -90,5 +92,69 @@ struct ApplicationRepositoryTests {
         let application = Application(company: "Stripe", role: "EM")
         application.stageRawValue = "archived"
         #expect(application.stage == .applied)
+    }
+
+    // MARK: Already added
+
+    @Test func dateAddedFindsALinkSharedWithTrackingParameters() throws {
+        var draft = makeDraft()
+        draft.link = "https://jobs.ashbyhq.com/grow-therapy/eb6b5a30?departmentId=1&utm_source=linkedin"
+        try ApplicationRepository(context: context).add(draft, createdAt: Self.today)
+
+        var pasted = ApplicationDraft()
+        pasted.link = "jobs.ashbyhq.com/grow-therapy/eb6b5a30"
+        let key = try #require(pasted.normalizedLink)
+        #expect(try ApplicationRepository(context: context).dateAdded(forNormalizedLink: key) == Self.today)
+    }
+
+    @Test func dateAddedIsNilForALinkThatWasNeverAdded() throws {
+        var draft = makeDraft()
+        draft.link = "https://stripe.com/jobs/6519024"
+        try ApplicationRepository(context: context).add(draft)
+
+        let dateAdded = try ApplicationRepository(context: context)
+            .dateAdded(forNormalizedLink: "https://stripe.com/jobs/6519025")
+        #expect(dateAdded == nil)
+    }
+
+    @Test func dateAddedReturnsTheMostRecentOfSeveralAdds() throws {
+        let repository = ApplicationRepository(context: context)
+        var draft = makeDraft()
+        draft.link = "https://stripe.com/jobs/6519024"
+        let later = Self.today.addingTimeInterval(86_400)
+        try repository.add(draft, createdAt: Self.today)
+        try repository.add(draft, createdAt: later)
+
+        #expect(try repository.dateAdded(forNormalizedLink: "https://stripe.com/jobs/6519024") == later)
+    }
+
+    @Test func backfillSetsTheKeyOnApplicationsSavedBeforeItExisted() throws {
+        let legacy = Application(company: "Stripe", role: "EM", link: "www.stripe.com/jobs/6519024/?utm_source=x")
+        let notALink = Application(company: "Acme", role: "EM", link: "ask Sam for the link")
+        let noLink = Application(company: "Grow Therapy", role: "EM")
+        [legacy, notALink, noLink].forEach(context.insert)
+        try context.save()
+
+        let repository = ApplicationRepository(context: context)
+        try repository.backfillNormalizedLinks()
+
+        #expect(legacy.normalizedLink == "https://stripe.com/jobs/6519024")
+        #expect(notALink.normalizedLink == nil)
+        #expect(noLink.normalizedLink == nil)
+        #expect(context.hasChanges == false)
+        #expect(try repository.dateAdded(forNormalizedLink: "https://stripe.com/jobs/6519024") == legacy.createdAt)
+    }
+
+    @Test func backfillLeavesExistingKeysAndSavesNothingTheSecondTime() throws {
+        let repository = ApplicationRepository(context: context)
+        var draft = makeDraft()
+        draft.link = "https://stripe.com/jobs/6519024"
+        let application = try repository.add(draft)
+
+        try repository.backfillNormalizedLinks()
+        try repository.backfillNormalizedLinks()
+
+        #expect(application.normalizedLink == "https://stripe.com/jobs/6519024")
+        #expect(context.hasChanges == false)
     }
 }

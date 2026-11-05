@@ -5,8 +5,8 @@ import os
 
 /// Drives the New Application sheet.
 ///
-/// The view binds to `draft`. Saving and fetching postings are injected, so this type imports neither SwiftData nor
-/// the networking module.
+/// The view binds to `draft`. Saving, looking up saved links, and fetching postings are injected, so this type imports
+/// neither SwiftData nor the networking module.
 @Observable
 @MainActor
 public final class NewApplicationViewModel: Identifiable {
@@ -18,14 +18,16 @@ public final class NewApplicationViewModel: Identifiable {
 
     /// Reads the posting at a URL. Throws when the posting can't be read.
     public typealias FetchPosting = @Sendable (URL) async throws -> PostingMetadata
+    /// When the posting with a `PostingLink.normalized(_:)` key was added, or `nil` if it never was.
+    public typealias DateAdded = (String) throws -> Date?
 
     public var draft: ApplicationDraft
     public var alert: Alert?
     public private(set) var shouldDismiss = false
     public private(set) var linkState: LinkState = .idle
 
-    /// Add depends only on the draft. A fetch in flight or a failed fetch never blocks it.
-    public var canAdd: Bool { draft.isValid }
+    /// Add needs a valid draft whose link wasn't added before. A fetch in flight or a failed fetch never blocks it.
+    public var canAdd: Bool { draft.isValid && !isDuplicate }
     public var blocksInteractiveDismiss: Bool { draft.isDirty }
 
     public var alertTitle: String {
@@ -41,21 +43,29 @@ public final class NewApplicationViewModel: Identifiable {
         set { if !newValue { alert = nil } }
     }
 
+    private var isDuplicate: Bool {
+        if case .duplicate = linkState { true } else { false }
+    }
+
     private let fetchPosting: FetchPosting
+    private let dateAdded: DateAdded
     private let debounce: Duration
     private let save: (ApplicationDraft) throws -> Void
 
     /// - Parameters:
     ///   - fetchPosting: Reads a posting. The app passes `PostingMetadataService`; tests pass a stub.
-    ///   - debounce: How long the link must stay unchanged before it is fetched.
+    ///   - dateAdded: Looks up a saved application by its link's key. The app queries SwiftData; tests pass a stub.
+    ///   - debounce: How long the link must stay unchanged before it is looked up and fetched.
     public init(
         draft: ApplicationDraft = ApplicationDraft(),
         fetchPosting: @escaping FetchPosting,
+        dateAdded: @escaping DateAdded,
         debounce: Duration = .milliseconds(300),
         save: @escaping (ApplicationDraft) throws -> Void
     ) {
         self.draft = draft
         self.fetchPosting = fetchPosting
+        self.dateAdded = dateAdded
         self.debounce = debounce
         self.save = save
     }
@@ -70,6 +80,9 @@ public final class NewApplicationViewModel: Identifiable {
     /// Call it from `.task(id: postingURL)`. SwiftUI cancels the task when the URL changes or the sheet closes, which
     /// both debounces typing and drops a result for a link that is no longer in the field.
     ///
+    /// A link that was already added is reported as a duplicate and never fetched. The check waits out the debounce
+    /// too, so a half-typed link can't briefly match a shorter saved one.
+    ///
     /// Filled-in values belong to the link they came from. When the link is removed or the new one can't be read,
     /// those values are cleared so they can't be saved against the wrong posting. Typed text always stays.
     public func loadPosting() async {
@@ -81,6 +94,12 @@ public final class NewApplicationViewModel: Identifiable {
         do {
             try await Task.sleep(for: debounce)
         } catch {
+            return
+        }
+
+        if let addedOn = dateAddedForLink() {
+            draft.clearAutofill()
+            linkState = .duplicate(addedOn: addedOn)
             return
         }
 
@@ -97,6 +116,18 @@ public final class NewApplicationViewModel: Identifiable {
         }
     }
 
+    /// When the link in the field was added before. A failed lookup is logged and treated as not added, so it never
+    /// blocks the form.
+    private func dateAddedForLink() -> Date? {
+        guard let key = draft.normalizedLink else { return nil }
+        do {
+            return try dateAdded(key)
+        } catch {
+            Logger.viewModel.error("Unable to look up the link: \(error, privacy: .public)")
+            return nil
+        }
+    }
+
     /// The footer under the link field.
     public var linkFooter: String? {
         switch linkState {
@@ -105,7 +136,31 @@ public final class NewApplicationViewModel: Identifiable {
         case .found: nil
         case .couldNotRead:
             "This posting couldn't be read. Fill in the company and role below. The link is still saved."
+        case .duplicate: nil
         }
+    }
+
+    /// The row under a link that was already added, such as "You added this on Oct 12".
+    public var duplicateNote: String? {
+        guard case .duplicate(let addedOn) = linkState else { return nil }
+        return "You added this on \(Self.formattedDateAdded(addedOn))"
+    }
+
+    /// The day an application was added, such as "Oct 12". The year is shown only when it isn't the current one.
+    public static func formattedDateAdded(
+        _ date: Date,
+        now: Date = .now,
+        calendar: Calendar = .current,
+        locale: Locale = .current
+    ) -> String {
+        var style = Date.FormatStyle.dateTime.month(.abbreviated).day()
+        if !calendar.isDate(date, equalTo: now, toGranularity: .year) {
+            style = style.year()
+        }
+        style.calendar = calendar
+        style.timeZone = calendar.timeZone
+        style.locale = locale
+        return date.formatted(style)
     }
 
     /// The footer under Details. It names only fields that still hold the posting's values.
@@ -137,6 +192,8 @@ public final class NewApplicationViewModel: Identifiable {
             }
         case .couldNotRead:
             return "Couldn't read this posting. Fill in the company and role."
+        case .duplicate(let addedOn):
+            return "You already added this job on \(Self.formattedDateAdded(addedOn))."
         }
     }
 

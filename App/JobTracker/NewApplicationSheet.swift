@@ -101,6 +101,11 @@ struct NewApplicationSheet: View {
             if case .found(let metadata) = viewModel.linkState {
                 PostingSummaryRow(metadata: metadata)
             }
+            if let note = viewModel.duplicateNote {
+                Text(note)
+                    .font(.subheadline)
+                    .accessibilityIdentifier("duplicateNote")
+            }
         } header: {
             Text("Job posting")
         } footer: {
@@ -136,6 +141,11 @@ struct NewApplicationSheet: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
                 .accessibilityLabel("Couldn't read posting")
+                .accessibilityIdentifier("linkStatus")
+        case .duplicate:
+            Image(systemName: "square.on.square")
+                .foregroundStyle(.blue)
+                .accessibilityLabel("Already added")
                 .accessibilityIdentifier("linkStatus")
         }
     }
@@ -264,10 +274,19 @@ private struct PostingSummaryRow: View {
     sheetPreview(.couldNotRead, link: "https://www.linkedin.com/jobs/view/4021187733")
 }
 
-@MainActor private func sheetPreview(_ stub: PostingStub, link: String) -> some View {
+#Preview("Already added") {
+    sheetPreview(.fetching, link: "stripe.com/jobs/listing/6519024", addedOn: .now.addingTimeInterval(-24 * 86_400))
+}
+
+@MainActor private func sheetPreview(_ stub: PostingStub, link: String, addedOn: Date? = nil) -> some View {
     var draft = ApplicationDraft()
     draft.link = link
-    let viewModel = NewApplicationViewModel(draft: draft, fetchPosting: stub.fetchPosting, save: { _ in })
+    let viewModel = NewApplicationViewModel(
+        draft: draft,
+        fetchPosting: stub.fetchPosting,
+        dateAdded: { _ in addedOn },
+        save: { _ in }
+    )
     return Color.clear.sheet(isPresented: .constant(true)) {
         NewApplicationSheet(viewModel: viewModel)
     }
