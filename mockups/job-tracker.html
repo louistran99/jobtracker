@@ -100,21 +100,6 @@
   .a .logo { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 18px; flex-shrink: 0; letter-spacing: -0.3px; }
   .a .co { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
   .a .role { font-size: 14px; color: var(--ink2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .a .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-  .a .when { font-size: 13px; color: var(--ink2); font-weight: 500; }
-  .a .when.soon { color: var(--tint); }
-  .a .cap { font-size: 12px; font-weight: 600; height: 22px; padding: 0 8px; border-radius: 11px; display: inline-flex; align-items: center; white-space: nowrap; }
-  .a .cap.applied { color: #636366; background: rgba(142,142,147,.16); }
-  .a .cap.screening { color: var(--screening); background: rgba(88,86,214,.13); }
-  .a .cap.onsite { color: #C26A00; background: rgba(255,149,0,.15); }
-  .a .cap.offer { color: #248A3D; background: rgba(52,199,89,.16); }
-  .a .cap.rejected { color: #D70015; background: rgba(255,59,48,.12); }
-
-  .a .swipe { position: relative; height: 66px; }
-  .a .swipe .slide { position: absolute; inset: 0; transform: translateX(-148px); background: var(--card); display: flex; align-items: center; gap: 12px; padding: 0 16px; }
-  .a .swipe .actions { position: absolute; top: 0; right: 0; bottom: 0; width: 148px; display: flex; }
-  .a .swipe .actions div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #fff; font-size: 13px; font-weight: 500; }
-  .a .swipe::before { content: ""; position: absolute; top: 0; left: 68px; right: 0; border-top: 0.5px solid var(--sep); z-index: 2; }
 
   .a .tabbar {
     position: absolute; left: 0; right: 0; bottom: 0; height: 84px; z-index: 30;
@@ -230,11 +215,9 @@
     <symbol id="flag" viewBox="0 0 20 20"><path d="M5 18V3M5 3.5h10l-2.2 3.5L15 10.5H5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="cal" viewBox="0 0 20 20"><rect x="2.5" y="4" width="15" height="13.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 8.5h15M6.5 2.5v3M13.5 2.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="bell" viewBox="0 0 20 20"><path d="M5 14V9.5a5 5 0 0 1 10 0V14l1.3 1.7H3.7Z" fill="currentColor"/><path d="M8.3 17.8h3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
-    <symbol id="arrow-r" viewBox="0 0 20 20"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="arrow-d" viewBox="0 0 12 12"><path d="M6 2v8M2.8 7 6 10.2 9.2 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="ellipsis" viewBox="0 0 20 20"><circle cx="4.5" cy="10" r="1.8" fill="currentColor"/><circle cx="10" cy="10" r="1.8" fill="currentColor"/><circle cx="15.5" cy="10" r="1.8" fill="currentColor"/></symbol>
     <symbol id="xmark" viewBox="0 0 20 20"><path d="m5.5 5.5 9 9M14.5 5.5l-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="trash" viewBox="0 0 20 20"><path d="M3.5 5.5h13M8 5.5V3.8h4v1.7M5.2 5.5l.8 11a1.6 1.6 0 0 0 1.6 1.5h4.8a1.6 1.6 0 0 0 1.6-1.5l.8-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="spinner" viewBox="0 0 20 20"><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2v4" opacity="1"/><path d="m15.66 4.34-2.83 2.83" opacity=".88"/><path d="M18 10h-4" opacity=".76"/><path d="m15.66 15.66-2.83-2.83" opacity=".64"/><path d="M10 18v-4" opacity=".52"/><path d="m4.34 15.66 2.83-2.83" opacity=".4"/><path d="M2 10h4" opacity=".3"/><path d="m4.34 4.34 2.83 2.83" opacity=".2"/></g></symbol>
     <symbol id="warn" viewBox="0 0 20 20"><path d="M10 2.5 18.5 17h-17Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/><circle cx="10" cy="14.6" r="1.1" fill="#fff"/></symbol>
     <symbol id="dup" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13.5 4.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v8A1.5 1.5 0 0 0 4 13.5h.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
@@ -295,28 +278,18 @@
             <div class="row app">
               <div class="logo" style="background:#FF5A5F">A</div>
               <div class="grow"><div class="co">Airbnb</div><div class="role">EM, Guest Apps</div></div>
-              <div class="meta"><span class="cap screening">Screening</span><span class="when soon">Tomorrow</span></div>
             </div>
             <div class="row app">
               <div class="logo" style="background:#635BFF">S</div>
               <div class="grow"><div class="co">Stripe</div><div class="role">EM, Mobile Platform</div></div>
-              <div class="meta"><span class="cap onsite">Onsite</span><span class="when">Thu, Nov 5</span></div>
             </div>
-            <div class="swipe">
-              <div class="actions">
-                <div style="background:#007AFF"><svg class="i" width="20" height="20"><use href="#arrow-r"/></svg>Advance</div>
-                <div style="background:#FF3B30"><svg class="i" width="20" height="20"><use href="#trash"/></svg>Delete</div>
-              </div>
-              <div class="slide">
-                <div class="logo" style="background:#1B1B1B">R</div>
-                <div class="grow" style="flex:1;min-width:0"><div class="co">Ramp</div><div class="role">EM, Mobile</div></div>
-                <div class="meta"><span class="cap screening">Screening</span><span class="when">Fri, Nov 6</span></div>
-              </div>
+            <div class="row app">
+              <div class="logo" style="background:#1B1B1B">R</div>
+              <div class="grow"><div class="co">Ramp</div><div class="role">EM, Mobile</div></div>
             </div>
             <div class="row app">
               <div class="logo" style="background:#58CC02">D</div>
               <div class="grow"><div class="co">Duolingo</div><div class="role">EM, iOS</div></div>
-              <div class="meta"><span class="cap offer">Offer</span><span class="when">Reply by Nov 10</span></div>
             </div>
           </div>
 
@@ -325,12 +298,10 @@
             <div class="row app">
               <div class="logo" style="background:#5E6AD2">L</div>
               <div class="grow"><div class="co">Linear</div><div class="role">Head of Mobile</div></div>
-              <div class="meta"><span class="cap applied">Applied</span><span class="when">Oct 30</span></div>
             </div>
             <div class="row app">
               <div class="logo" style="background:#1DB954">S</div>
               <div class="grow"><div class="co">Spotify</div><div class="role">EM, iOS Client</div></div>
-              <div class="meta"><span class="cap applied">Applied</span><span class="when">Oct 28</span></div>
             </div>
           </div>
         </div>
@@ -343,8 +314,7 @@
       <ul class="notes">
         <li><b>Data</b>: the list comes from <code>@Query(sort: \.nextStepDate)</code>. The filter chips change the query's <code>#Predicate</code> rather than filtering an array in the view.</li>
         <li><b>Sections</b>: rows are grouped by whether they have a next step, so what needs attention is at the top. Be ready to explain why you didn't group by stage.</li>
-        <li><b>Swipe actions</b>: <code>.swipeActions</code> offers Advance and Delete. Advance calls the same function the unit tests cover.</li>
-        <li><b>Accessibility</b>: each row reads as one <code>.accessibilityElement(children: .combine)</code>, for example "Airbnb, EM Guest Apps, Screening, next step tomorrow".</li>
+        <li><b>Accessibility</b>: each row reads as one <code>.accessibilityElement(children: .combine)</code>, for example "Airbnb, EM Guest Apps".</li>
       </ul>
     </div>
 
