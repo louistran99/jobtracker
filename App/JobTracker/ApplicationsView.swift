@@ -18,9 +18,12 @@ struct ApplicationsView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            newApplication = NewApplicationViewModel(fetchPosting: fetchPosting) {
-                                try ApplicationRepository(context: modelContext).add($0)
-                            }
+                            let repository = ApplicationRepository(context: modelContext)
+                            newApplication = NewApplicationViewModel(
+                                fetchPosting: fetchPosting,
+                                dateAdded: { try repository.dateAdded(forNormalizedLink: $0) },
+                                save: { try repository.add($0) }
+                            )
                         } label: {
                             Label("New Application", systemImage: "plus")
                         }

@@ -647,11 +647,11 @@
             <span class="url">stripe.com/jobs/listing/6519024</span>
             <svg class="i" width="18" height="18" style="color:#007AFF"><use href="#dup"/></svg>
           </div>
-          <div class="row" style="min-height:44px"><span class="label grow" style="font-size:15px">You added this on Oct 12</span><span style="color:var(--tint);font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px">Open<svg class="i" width="7" height="12"><use href="#chev-r"/></svg></span></div>
+          <div class="row" style="min-height:44px"><span class="label grow" style="font-size:15px">You added this on Oct 12</span></div>
         </div>
       </div>
       <ul class="notes">
-        <li><b>One enum</b>: <code>FetchState</code> has the cases <code>.idle</code>, <code>.loading</code>, <code>.loaded(PostingMetadata)</code>, <code>.failed</code>, and <code>.duplicate(Application)</code>. Because the cases can't overlap, the view can't show conflicting states such as loading and error together.</li>
+        <li><b>One enum</b>: <code>FetchState</code> has the cases <code>.idle</code>, <code>.loading</code>, <code>.loaded(PostingMetadata)</code>, <code>.failed</code>, and <code>.duplicate(addedOn: Date)</code>. Because the cases can't overlap, the view can't show conflicting states such as loading and error together.</li>
         <li><b>Failure isn't a blocker</b>: if the fetch fails, the form keeps working. Many job sites block scraping, so manual entry has to be a normal path, not a dead end.</li>
         <li><b>Duplicates</b>: before fetching, the app normalizes the URL (removing tracking parameters) and checks it with a <code>#Predicate</code> query. This check runs locally, so it's fast and works offline.</li>
         <li><b>VoiceOver</b>: each state change is announced with <code>AccessibilityNotification.Announcement</code>, so screen-reader users find out when the fields have been filled.</li>

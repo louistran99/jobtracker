@@ -3,6 +3,7 @@ import Persistence
 import PostingService
 import SwiftData
 import ViewModels
+import os
 
 /// Composition root. Feature services are added here as their tickets land.
 @MainActor
@@ -18,6 +19,13 @@ struct AppDependencies {
     ) throws {
         let isUITesting = arguments.contains("-ui-testing")
         modelContainer = try PersistenceController.makeContainer(inMemory: isUITesting)
+        do {
+            try ApplicationRepository(context: modelContainer.mainContext).backfillNormalizedLinks()
+        } catch {
+            // Applications saved before links had keys just aren't recognized as already added. Not worth failing
+            // the launch over.
+            Logger.dependencies.error("Unable to backfill link keys: \(error, privacy: .public)")
+        }
         #if DEBUG
             if isUITesting {
                 fetchPosting = PostingStub(environment: environment).fetchPosting
@@ -27,4 +35,8 @@ struct AppDependencies {
         let service = PostingMetadataService()
         fetchPosting = { try await service.metadata(for: $0) }
     }
+}
+
+extension Logger {
+    fileprivate static let dependencies = Logger(subsystem: "com.louistran.jobtracker", category: "dependencies")
 }

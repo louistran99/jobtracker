@@ -1,4 +1,5 @@
 import Domain
+import Foundation
 
 /// What the link field shows about the pasted posting.
 ///
@@ -12,4 +13,6 @@ public enum LinkState: Equatable, Sendable {
     case found(PostingMetadata)
     /// The posting couldn't be read: a sign-in page, a timeout, or nothing usable. The link is still saved.
     case couldNotRead
+    /// The posting was added before, on `addedOn`. It isn't fetched again, and Add stays off.
+    case duplicate(addedOn: Date)
 }

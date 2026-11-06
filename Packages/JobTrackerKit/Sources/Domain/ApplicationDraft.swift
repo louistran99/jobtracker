@@ -49,23 +49,13 @@ public struct ApplicationDraft: Equatable, Sendable {
 
     public var trimmedLink: String? { Self.nonBlank(link) }
 
-    /// The URL to fetch for `link`, or `nil` when the text is not a web address.
-    ///
-    /// A missing scheme becomes `https`, and `http` is upgraded to `https` because App Transport Security blocks
-    /// plain HTTP. The host must contain a dot, so partial input such as "https://str" is not fetched.
-    public var postingURL: URL? {
-        guard let text = trimmedLink else { return nil }
-        let withScheme = text.contains("://") ? text : "https://\(text)"
-        guard var components = URLComponents(string: withScheme) else { return nil }
-        switch components.scheme?.lowercased() {
-        case "https", "http": components.scheme = "https"
-        default: return nil
-        }
-        guard components.user == nil, components.password == nil,
-            let host = components.host, host.contains("."), !host.hasPrefix("."), !host.hasSuffix(".")
-        else { return nil }
-        return components.url
-    }
+    /// The URL to fetch for `link`, or `nil` when the text is not a web address. See `PostingLink.url(from:)`.
+    public var postingURL: URL? { PostingLink.url(from: link) }
+
+    /// The key that identifies the posting `link` points to, used to find a posting that was already added.
+    /// See `PostingLink.normalized(_:)`.
+    public var normalizedLink: String? { postingURL.map(PostingLink.normalized) }
+
     public var trimmedCompany: String { Self.trimmed(company) }
     public var trimmedRole: String { Self.trimmed(role) }
     public var trimmedNotes: String { Self.trimmed(notes) }

@@ -16,6 +16,7 @@ struct NewApplicationViewModelTests {
         NewApplicationViewModel(
             draft: ApplicationDraft(today: Date(timeIntervalSince1970: 1_700_000_000)),
             fetchPosting: { _ in throw FetchError() },
+            dateAdded: { _ in nil },
             save: save
         )
     }
